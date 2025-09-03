@@ -1,0 +1,18 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    color: white;
+    font-size: 16px;
+    font-family: 'Courier New', Courier, monospace;
+}
+.header{
+    text-align: center;
+    padding: 30px;
+    background-image: url(/images/elijah-pilchard-BXx_7SvDlVw-unsplash\ \(2\).jpg);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
