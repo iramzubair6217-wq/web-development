@@ -1,0 +1,56 @@
+*{
+    margin: auto;
+    padding: 0%;
+    box-sizing: border-box;
+}
+.container{
+    display: flex;
+    width: 95%;
+    margin: auto;
+}
+.row{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+.col-6{
+    width: 50%;
+}
+.a{
+    font-size: 30px;
+    font-weight: 400;
+    text-decoration: o;
+}
+.b{
+    font-size: 35px;
+}
+h1{
+    font-size: 6rem;
+}
+.my-3{
+margin:45px;
+}
+.btn{
+    font-size: 40px;
+    padding: 25px;
+    border-radius: 40px;
+    background-color: rgb(77, 77, 218);
+    color: white;
+    border: none;
+}
+.btn:hover{
+    background-color: red;
+}
+.span:hover{
+    color: red;
+}
+span{
+    color: rgb(79, 79, 230);
+   
+}
+.c{
+    text-decoration: underline 5px solid;
+    text-underline-offset: 10px;
+    
+}

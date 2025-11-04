@@ -1,0 +1,300 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.container-fluid{
+    width: 100%;
+    margin: auto;
+}
+.container{
+    width: 90%;
+    margin: auto;
+}
+
+.row{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.navbar{
+    display: flex;
+    justify-content: space-between;
+}
+.primary-color{
+    color: red;
+}
+.sec-color{
+    color: orange;
+}
+.color{
+    color: white;
+}
+.bg-dark{
+    background-color:black;
+}
+.dark-gray{
+    background-color: rgb(158, 156, 156);
+}
+
+
+.m-1{
+    margin:auto 50px;
+}
+.m-2{
+    margin:50px auto;
+}
+.m-4{
+    margin:20px auto;
+}
+.p-1{
+   padding: 15px;
+}
+.p-2{
+    padding: 60px;
+}
+.menu-items{
+    display: flex;
+    text-align: center;
+    list-style: none;
+      gap: 5px;
+}
+.item a:hover{
+    color:red;
+}
+.item a{
+   font-size: 35px;
+   text-decoration: none;
+       color: black;
+}
+.btn a{
+    font-size: 30px;
+    text-decoration: none;
+    color:white;
+ 
+}
+.btn:hover{
+    background-color: orange;
+}
+.btn a:hover{
+    color: black;
+}
+
+.btn{
+    border: solid;
+    height: 4rem;
+    width: 10rem;
+    border: none;
+     border-radius: 30px;
+      background-color:black;
+}
+.content{
+    text-align: center;
+    margin-top: -50rem;
+}
+.content button {
+    font-size: 40px;
+    background-color: red;
+    border: none;
+    width: 15rem;
+    height: 5rem;
+    border-radius: 50px;
+    
+}
+.heading{
+    font-size: 90px;
+     color:white;
+     font-weight: 1000;
+}
+.paragraph{
+    font-size: 40px;
+    color: rgb(247, 246, 245) ;
+}
+.m-3{
+    margin-top: 30rem;
+}
+.card{
+    width: 34rem;
+    border: solid;
+    height: 34rem;
+    text-align: center;
+    border-radius: 30px;
+    border: none;
+    box-shadow: 4px 5px 8px rgb(99, 96, 96) ;
+}
+.card:hover{
+    background-color: rgb(95, 94, 94);
+   
+}
+.card img{
+    padding: 30px;
+}
+.card h2{
+    font-size: 35px;
+    color: orange;
+}
+.card p{
+    font-size: 30px;
+    padding: 25px;
+    color: rgb(207, 201, 201);
+}
+.card button {
+    font-size: 30px;
+     border: solid;
+    height: 3rem;
+    width: 12rem; 
+margin-top: 40px;
+    border-radius: 10px;
+    border: none;
+text-decoration: none;
+   
+}
+.card button a{
+    text-decoration: none;
+    color: rgb(225, 29, 29);
+}
+.card button a:hover{
+ color: white;
+    
+}
+.card button:hover{
+    background-color: red;
+}
+.text{
+   padding-left: 50px;
+}
+.text h1{
+    font-size: 80px;
+    color:orange;
+}
+.text h1:hover{
+    color: black;
+}
+
+
+.text p{
+    font-size: 30px;
+    margin: 60px auto 50px;
+    color: gray;
+    
+   
+}
+.image{
+  margin: 50px auto 50px 10rem ;
+}
+.text button{
+    font-size: 30px;
+   width: 15rem;
+   height: 4rem;
+   margin-left: 13rem;
+   border-radius: 15px;
+   background-color: rgb(108, 108, 112);
+   border: none;
+}
+.text button a{
+    color: white;
+
+}
+.text button:hover{
+    color: black;
+    background-color: rgb(219, 118, 9);
+}
+.heading2{
+    text-align: center;
+    font-size: 50px;
+    color: orange;
+}
+.svg:hover{
+fill: red;
+}
+
+.teams{
+display: flex;
+}
+.team{
+      width: 20rem;
+    height: 30rem;
+    margin: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    text-align: center;
+
+}
+.team img{
+    border: solid white 10px;
+    border-radius: 15rem;
+   
+}
+.team h2{
+    font-size: 40px;
+  
+
+}
+.h1{
+    color: orange;
+    font-size: 80px;
+    text-align: center;
+}
+.contact{
+    padding: 50px;
+}
+.address h3{
+    display: flex;
+    font-size: 30px;
+}
+.form input{
+font-size: 20px;
+padding: 15px 15rem 15px 2px;
+}
+.form h2{
+    font-size: 40px;
+    display: flex;
+    flex-direction: row;
+}
+.form button{
+height: 4rem;
+width: 15rem;
+border-radius: none;
+}
+.address h2{
+     font-size: 40px;
+     margin-top: -16rem;
+}
+.footer{
+    display: flex;
+    justify-content: space-around;
+    align-items:flex-start;
+    padding: 50px;
+  
+  
+}
+.section h2{
+    font-size: 40px;
+}
+.section ul{
+    list-style: none;
+}
+.li a{
+text-decoration: none;
+color: white;
+font-size: 30px;
+
+}
+.li a:hover{
+    text-decoration: underline;
+}
+.section h3{
+    font-size: 30px;
+}
+.section p{
+    font-size: 30px;
+}
+
+
+   
+
+
+ 
+

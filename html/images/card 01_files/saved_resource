@@ -1,0 +1,1661 @@
+
+ if(typeof aff_masterTag == 'undefined' || aff_masterTag === null){	var aff_masterTag = true;
+// masterTag regenerated on 2025-02-07 10:35
+/****************************************************************************************************************
+* Master TAG
+****************************************************************************************************************/
+var AffUtils = AffUtils || {
+	Link: {
+		/**
+		 * Checks if 2 domains are different in order to get to know if a link is external
+		 *
+		 * @param link
+		 * @returns {boolean}
+		 */
+		isExternalLink: function (link) {
+			var pagedomain = AffUtils.Domain.getHostNameFromURL(document.location.href);
+			var linkdomain = AffUtils.Domain.getHostNameFromURL(link);
+			return (linkdomain !== pagedomain);
+		},
+		/**
+		 * Checks if one URL is having parameters
+		 *
+		 * @param link
+		 * @returns {boolean}
+		 */
+		containsQueryString: function (link) {
+			return (link.indexOf('?') > -1);
+		},
+		/**
+		 * Adds one parameter to one link
+		 *
+		 * @param link
+		 * @param propagateParam
+		 * @param paramName
+		 * @returns {string|*}
+		 */
+		injectParameters: function (link, propagateParam, paramName) {
+            if (propagateParam === '' || link.indexOf(paramName + '=') > -1) {
+                return this.updateInjectedParameters(link, propagateParam, paramName);
+            }
+
+			var separator;
+			if (AffUtils.Link.containsQueryString(link)) {
+				separator = '&';
+			} else {
+				separator = '?';
+			}
+			/* Check internal anchors in the URL */
+			var anchor = '';
+			var anchorposition = link.indexOf('#');
+            var anchor_before_query_string = this.isAnchorBeforeQueryStringInLink(link);
+
+			if (anchorposition > -1) {
+				anchor = link.substr(anchorposition);
+				link = link.substr(0, anchorposition);
+			}
+
+            var result = '';
+
+            // In case that there is anchor (#) in url,
+            // we're making sure if parameters are located before or after the anchor,
+            // So we'll append our parameters always after their parameters
+            if (anchor_before_query_string === true) {
+                result = link + anchor + separator + propagateParam;
+            }else{
+                result = link + separator + propagateParam + anchor;
+            }
+
+            return result;
+		},
+        /**
+         * If mlc/dedup param already exist in external url, we will update its value
+         * This happened when we click same anchor tag (that is external link) more than once
+         * @param link
+         * @param propagateParam
+         * @param paramName
+         * @returns {string|*}
+         */
+        updateInjectedParameters: function(link, propagateParam, paramName) {
+            if (propagateParam === '' || link.indexOf(paramName + '=') > -1) {
+                const propagateParamArray = propagateParam.split("=");
+                if (propagateParamArray && propagateParamArray[1] !== '') {
+                    // we are inside this condition because propagate
+                    // param already exit in the url
+                    try {
+                        var search_params;
+                        var anchor_before_query_string = this.isAnchorBeforeQueryStringInLink(link);
+                        var url = new URL(link);
+                        if (url) {
+                            var final_redirect_link = '';
+
+                            // get query string params list
+                            if (anchor_before_query_string === true) {
+                                // This is the case when # exist in the URL and before the search query string
+                                search_params = new URLSearchParams(url.hash.split('?')[1]);
+                            } else {
+                                search_params = url.searchParams;
+                            }
+
+                            // set query string params: affclk/gdp param value and create the final redirect link
+                            if (search_params) {
+                                search_params.set(paramName, propagateParamArray[1]);
+                                var updated_querystring = search_params.toString();
+
+                                if (anchor_before_query_string === true) {
+                                    // This is the case when # exist in the URL and before the search query string
+                                    var url_without_querystring = link.split('?')[0];
+                                    var updated_link = url_without_querystring + '?' + updated_querystring;
+                                    final_redirect_link = decodeURIComponent(updated_link);
+                                } else {
+                                    url.search = updated_querystring;
+                                    final_redirect_link = decodeURIComponent(url.toString());
+                                }
+
+                                return final_redirect_link;
+                            }
+                        }
+                    } catch(err) {
+                        console.log(err);
+                    }
+                }
+            }
+            return link;
+        },
+        /**
+         * It will return true if anchor is before the query search string
+         * @param link
+         * @returns {boolean}
+         */
+        isAnchorBeforeQueryStringInLink: function (link) {
+            if (link !== undefined) {
+                var anchorposition = link.indexOf('#');
+                var getParamsPosition = link.indexOf('?');
+                if (anchorposition > -1 && anchorposition < getParamsPosition) {
+                    return true;
+                }
+            }
+            return false;
+        },
+		/**
+		 * Check if the string is a link
+		 *
+		 * @param url
+		 * @returns {boolean}
+		 */
+		isLink: function (url) {
+            // In some cases url can be undefined, to avoid issues before to execute toLowerCase()
+            // we need to check that url is having any value
+            if(typeof url !== 'undefined' && url !== null){
+                url = url.toLowerCase();
+                if (url.substring(0, 7) === 'http://') {
+                    return true;
+                } else if (url.substring(0, 8) === 'https://') {
+                    return true;
+                } else if (url.substring(0, 2) === '//') {
+                    return true;
+                } else if (url.substring(0, 1) === '/') {
+                    return true;
+                }
+            }
+			return false;
+		},
+		getParameterValue: function (paramName) {
+			var queryString = window.location.search.substring(1);
+			var params = queryString.split('&');
+			for (var i = 0; i < params.length; i++) {
+				var param = params[i].split('=');
+				if (param[0] === paramName) {
+					return decodeURIComponent(param[1]);
+				}
+			}
+			return null;
+		}
+	},
+	Pixel: {
+		/**
+		 * Loads a pixel
+		 * @param pixelUrl
+		 */
+		load: function(pixelUrl){
+			try {
+				var mSaleUrl = pixelUrl;
+				var merchantSaleImg= new Image(1,1);
+				merchantSaleImg.src = mSaleUrl;
+				merchantSaleImg.onload=function() { return; }
+			} catch(e) {}
+		}
+	},
+	Cookie: {
+		/**
+		 * Gets the value of a cookie if exists
+		 *
+		 * @param cookieName
+		 * @returns {string|null}
+		 */
+		get: function (cookieName) {
+			var value = '; ' + document.cookie;
+			var parts = value.split('; ' + cookieName + '=');
+			if (parts.length === 2) {
+				return parts.pop().split(';').shift();
+			}
+			return null;
+		},
+		/**
+		 * Sets the cookie
+		 *
+		 * @param name
+		 * @param value
+		 * @param expires
+		 * @param domain
+		 */
+		set: function (name, value, expires, domain) {
+			value = value.replace(/;/g, "%3B");
+			document.cookie = name + '=' + value + '; expires = ' + expires + ';domain=.' + domain + ';path=/;SameSite=Lax'
+		},
+		setPartitioned: function(value){
+			value = encodeURI(value)
+			AffUtils.Pixel.load('https://scripts.affilired.com/v4/ptc.php?m=5222&cv=' + value);
+		},
+		extractCookieValue: function(cookieValue) {
+			if(cookieValue && cookieValue.length > 0){
+				var cookieDecoded = decodeURI(cookieValue);
+				return cookieDecoded.split('|');
+			}
+			return false;
+		},
+        /**
+         * Get cookie remaining time to expiry date
+         *
+         * @param cookieCreatedTime
+         * @param cookieLife
+         * @returns {number|null}
+         */
+        getRemainingTime: function (cookieCreatedTime, cookieLife) {
+            var cookie_expiry_time = parseInt(cookieCreatedTime) + parseInt(cookieLife);
+            var d = new Date();
+            var nowms = Math.round(d / 1000);
+            var remainingTime = parseInt(cookie_expiry_time) - parseInt(nowms);
+            return remainingTime ? remainingTime : cookieLife;
+        },
+        /**
+         * Calculate cookie expiry date time by using remaining time
+         *
+         * @param remainingTime
+         * @returns {number}
+         */
+        getExpiryDateTime : function (remainingTime) {
+            return (Math.round(new Date().getTime())) + (remainingTime * 1000);
+        },
+        /**
+         * Calculate cookie created timestamp using remaining time
+         *
+         * @param cookieLife
+         * @param remainingTime
+         * @returns {number|null}
+         */
+        getCreatedDateTime : function (cookieLife, remainingTime) {
+            var days_passed = parseInt(cookieLife) - parseInt(remainingTime);
+            var now = Math.round(new Date().getTime()) / 1000;
+            var created_timestamp = parseInt(now) - parseInt(days_passed);
+            return created_timestamp ? created_timestamp : null;
+        },
+        getLastInteractionDateTime : function (affCookie, cookieType) {
+            var cookieCreatedDateTime = '';
+            if (cookieType == 'mlc') {
+                // In case mlc cookie
+                var affCookieData = affCookie.split('|');
+                cookieCreatedDateTime = affCookieData[5];
+            } else if (cookieType == 'dedup') {
+                // In case dedup cookire
+                var affCookieData = affCookie.split('|');
+                cookieCreatedDateTime = affCookieData[1];
+            }
+            return cookieCreatedDateTime;
+        },
+        isCookieOneHourOlder : function (affCookie, cookieType) {
+            var isOld =  false;
+            if (typeof affCookie !== 'undefined' && affCookie !== '') {
+                var lastInteractionDateTime = AffUtils.Cookie.getLastInteractionDateTime(affCookie, cookieType);
+                if (lastInteractionDateTime !== '') {
+                    var current = new Date();
+                    var previous = new Date(lastInteractionDateTime*1000);
+                    var msPerMinute = 60 * 1000;
+                    var msPerHour = msPerMinute * 60;
+                    var msPerDay = msPerHour * 24;
+                    var msPerMonth = msPerDay * 30;
+                    var msPerYear = msPerDay * 365;
+                    var elapsed = current - previous;
+
+                    var months = Math.round(elapsed/msPerMonth);
+                    if (months >= 1) {
+                        // Last interaction is one or more months old
+                        isOld =  true;
+                    } else {
+                        if (elapsed < msPerMonth) {
+                            var ms_days = Math.round(elapsed/msPerDay);
+                            if (ms_days >= 1) {
+                                // Last interaction is one or more day old
+                                isOld =  true;
+                            } else {
+                                if (elapsed < msPerHour) {
+                                    var ms_mints = Math.round(elapsed/msPerMinute);
+                                    if (ms_mints > 60) {
+                                        // Last interaction is 60 or more min old
+                                        isOld =  true;
+                                    }
+                                }
+
+                                if (!isOld && (elapsed < msPerDay)) {
+                                    var ms_hours = elapsed/msPerHour;
+                                    if (ms_hours >= 1) {
+                                        // Last interaction is one or more hour old
+                                        isOld =  true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return isOld;
+        }
+	},
+	localStorage: {
+		_lsc: null,
+		set: function(key, value){
+			localStorage.setItem(key, JSON.stringify(decodeURI(value.trim())));
+			var iframeURL = 'https://customs.affilired.com/' + 'ls.php?lsc_n=' +  encodeURI(key);
+			iframeURL += '&lsc_v=' + encodeURI(value);
+			AffUtils.localStorage.createIframe(iframeURL);
+		},
+		createIframe: function (location){
+			let iframe = document.createElement('iframe');
+			iframe.src = location;
+			iframe.width = '1';
+			iframe.height = '1';
+			iframe.style.display = 'none';
+			iframe.sandbox = 'allow-same-origin allow-scripts';
+			document.body.appendChild(iframe);
+		},
+		getOwn: function(){
+			window.addEventListener("message", function(event) {
+				if ('https://customs.affilired.com/'.indexOf(event.origin) === -1) {
+					return;
+				}
+				AffUtils.localStorage._lsc = event.data;
+			}, false);
+			AffUtils.localStorage.createIframe('https://customs.affilired.com/' + 'rls.php?m=5222');
+		}
+	},
+	Domain: {
+		/**
+		 * Extracts the complete hostName from a url
+		 *
+		 * @param url
+		 * @returns {null|*}
+		 */
+		getHostNameFromURL: function (url) {
+			var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
+			if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
+				return match[2];
+			} else {
+				return null;
+			}
+		},
+		/**
+		 * Gets the main domain without the subdomain from a string
+		 *
+		 * @param domain
+		 * @returns {*}
+		 */
+		getDomainWithoutSubdomainsFromDomain: function (domain) {
+			// http://rossscrivener.co.uk/blog/javascript-get-domain-exclude-subdomain
+			var i = 0;
+			var p = domain.split('.');
+			var s = '_gd' + (new Date()).getTime();
+			while (i < (p.length - 1) && document.cookie.indexOf(s + '=' + s) === -1) {
+				domain = p.slice(-1 - (++i)).join('.');
+				document.cookie = s + '=' + s + ';domain=' + domain + ';';
+			}
+			document.cookie = s + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;domain=' + domain + ';';
+			return domain;
+		},
+		/**
+		 * Extracts the domain from a string (removes protocol, routes, etc)
+		 *
+		 * @param string
+		 * @returns {*}
+		 */
+		extractDomainFromString: function (string) {
+			var hostname;
+			//find & remove protocol (http, ftp, etc.) and get hostname
+			if (string.indexOf('//') > -1) {
+				hostname = string.split('/')[2];
+			} else {
+				hostname = string.split('/')[0];
+			}
+			//find & remove port number
+			hostname = hostname.split(':')[0];
+			//find & remove '?'
+			hostname = hostname.split('?')[0];
+			hostname = hostname.replace('www.', '');
+			return hostname;
+		},
+		/**
+		 * Checks if a domain is blackListed (social media)
+		 *
+		 * @param externalURL
+		 * @returns {boolean}
+		 */
+		inBlackList: function (externalURL) {
+			var blacklist = ['facebook.com', 'twitter.com', 'youtube.com', 'instagram.com', 'pinterest.com', 'pinterest.es', 'es.pinterest.com', 'vimeo.com', 'plus.google.com', 'linkedin.com', 'tripadvisor.com', 'amazonaws.com', 'oppwa.com', 'paypal.com', 'stripe.com', 'squareup.com', 'authorize.net', 'worldpay.com', 'skrill.com', 'adyen.com', 'braintreepayments.com', 'secure.checkout.visa.com', 'secure.checkout.mastercard.com', 'apple.com', 'google.com', 'microsoft.com', 'dropbox.com', 'box.com', 'slack.com', 'zoom.us', 'github.com', 'gitlab.com', 'bitbucket.org', 'digitalocean.com', 'heroku.com', 'cloudflare.com', 'paypalobjects.com', 'secure.payment.com', 'bankofamerica.com', 'wellsfargo.com', 'chase.com', 'citibank.com', 'americanexpress.com', 'discover.com', 'sandbox.paypal.com', 'stripe.com', 'sandbox.stripe.com', 'hackerone.com', 'bugcrowd.com', 'synack.com', 'tesla.com', 'uber.com', 'lyft.com', 'airbnb.com', 'booking.com', 'expedia.com', 'agoda.com', 'hotels.com', 'marriott.com', 'hilton.com'];
+			var domainURL = AffUtils.Domain.extractDomainFromString(externalURL.toLowerCase());
+			return (blacklist.indexOf(domainURL) > -1);
+		}
+	},
+	Event: {
+		eventWrapper: function (element, event, funct) {
+			try {
+				element.addEventListener ? element.addEventListener(event, funct) : element.attachEvent && element.attachEvent('on' + event, funct);
+			} catch (e) {
+				AffUtils.log('AffMLC exception:' + e.message, false);
+			}
+		},
+		wrap: function (object, method, wrapper) {
+			var fn = object[method];
+            return object[method] = function(){
+                if(arguments.length > 0){
+                    return wrapper.apply(this, [fn.bind(this)].concat(Array.prototype.slice.call(arguments)));
+                }else{
+                    return fn.apply();
+                }
+            };
+		},
+		unwrap: function (object, method, orginalFn) {
+			object[method] = orginalFn;
+		}
+	},
+	log: function (note, debug) {
+		if (debug) {
+			console.log(note);
+		}
+	},
+	group: function (groupName, debug) {
+		if (debug) {
+			console.group(groupName);
+		}
+	},
+	groupEnd: function (debug) {
+		if (debug) {
+			console.groupEnd();
+		}
+	},
+	isNotEmpty : function (value) {
+        return (typeof value !== 'undefined' && value !== null && value != '');
+    },
+	isEmpty : function (value) {
+        return (typeof value === 'undefined' || value === null || value == '');
+    },
+	isArrayNotEmpty : function (Arr) {
+        return  Array.isArray(Arr) && Arr.length > 0;
+    }
+};
+
+/****************************************************************************************************************
+* DENOMATIC PIXEL
+****************************************************************************************************************/
+function AffDenomaticPixel() {
+	if(aff_denomatic == null) {
+		var aff_denomatic = true;
+		/* Denomatic pixel */
+		! function() {
+			var x = document.createElement("script");
+			x.type = "text/javascript", x.async = !0, x.src = "https://cdn.denomatic.com/drs/560-7cf5b123dad6.js";
+			var z = document.getElementsByTagName("head")[0];
+			if (z) z.appendChild(x, z);
+			else {
+				var z = document.getElementsByTagName("script")[0];
+				z.parentNode.insertBefore(x, z)
+			}
+		}();
+	}
+}
+AffDenomaticPixel();
+/****************************************************************************************************************
+ * AFFILIRED MERCHANT LOCAL COOKIES EXPERIMENTAL MLC
+ ****************************************************************************************************************/
+var AffMLC = AffMLC || {};
+(function ($xd, cookieDays, injectParametersEnabled, debug, useDebugger, merchant) {
+	$xd.AffLocalCookieName = '';
+	// initialized in init, so it's not concatenating itself with ACD
+	$xd.COOKIELIFE = cookieDays * 24 * 60 * 60;
+	$xd.debug = debug;
+	$xd.useDebugger = useDebugger;
+	// Setting debugger also for the Utils
+	AffUtils.debug = debug;
+	// Option to inject the parameters on the External links
+	$xd.injectParametersEnabled = injectParametersEnabled;
+    $xd.merchantId = merchant;
+
+	/**
+	 * Retrieve the devide of the client
+	 *
+	 * @returns {number}
+	 */
+	$xd.getPlatformType = function () {
+		if (navigator.userAgent.match(/mobile/i)) {
+			// 'Mobile';
+			return 2;
+		} else if (navigator.userAgent.match(/iPad|Android|Touch/i)) {
+			// 'Tablet';
+			return 3;
+		} else if (navigator.userAgent.match(/tv/i)) {
+			// 'SmartTV';
+			return 4;
+		} else {
+			// 'Desktop';
+			return 1;
+		}
+	};
+
+	/**
+	 * Prepare the param to be propagated
+	 *
+	 * @param network
+	 * @param affiliate
+	 * @param remainingTime
+	 * @param tracking_reference
+	 * @param clickid
+	 * @param referrer
+	 * @returns {string}
+	 */
+	$xd.createPropagateParam = function (network, affiliate, remainingTime, tracking_reference, clickid, referrer) {
+		var propagate_param = '_affclk=' + network + ':' + affiliate + ':';
+		if (remainingTime != null) {
+			propagate_param += remainingTime;
+		}
+		propagate_param += ':';
+		if (tracking_reference != null) {
+			propagate_param += tracking_reference;
+		}
+		propagate_param += ':';
+		if (clickid != null) {
+			propagate_param += clickid;
+		}
+		propagate_param += ':';
+		if (referrer !== null && referrer !== '') {
+			propagate_param += referrer;
+		}
+		return propagate_param;
+	};
+
+	/**
+	 * Returns the Merchant Local Cookie
+	 *
+	 * @returns {string|null}
+	 */
+	$xd.getAffLocalCookie = function () {
+		var cookieValue = AffUtils.Cookie.get($xd.AffLocalCookieName);
+		if(cookieValue && cookieValue !== 'null'){
+			cookieValue = decodeURI(cookieValue)
+		}
+		return cookieValue;
+	};
+
+    /**
+     * Gets the main domain without the subdomain from a string
+     *
+     * @returns {*}
+     */
+    $xd.getDomain = function () {
+        var domain = document.domain;
+        return AffUtils.Domain.getDomainWithoutSubdomainsFromDomain(domain);
+    };
+
+	$xd.isPreviouslyCreatedLocalCookie = function () {
+		// We need to check if the cookie was already created using RevPr
+		// But only when we recieved the visit
+		var currentCookie = AffUtils.Cookie.get($xd.AffLocalCookieName)
+		if(currentCookie){
+			var explodedOldCookie = AffUtils.Cookie.extractCookieValue(currentCookie);
+			var consoleOldTimeStamp = explodedOldCookie[5] || 0;
+			var parameter = AffUtils.Link.getParameterValue('mlcAdded');
+			if(parameter){
+				parameter = parseInt(parameter);
+				consoleOldTimeStamp = parseInt(consoleOldTimeStamp);
+				if(consoleOldTimeStamp - parameter < 4){
+					// Less than 4 seconds
+					return true;
+				}
+			}
+		}
+		return false;
+	};
+
+	/**
+	 * Sets the Merchant Local Cookie
+	 *
+	 * @param network
+	 * @param tracking_ref
+	 * @param affiliate
+	 * @param funnel
+	 * @param referrer
+	 * @param clickTime
+	 * @param acd_sale
+	 * @param clickid
+	 * @param device
+	 * @param expires
+	 * @param domain
+	 */
+	$xd.setAffLocalCookie = function (
+		network, tracking_ref, affiliate, funnel, referrer, clickTime, acd_sale, clickid, device, expires, domain,
+		executedOnStartup
+	) {
+		if (tracking_ref == null) {
+			tracking_ref = '';
+		}
+		if (clickid == null) {
+			clickid = '';
+		}
+		/*
+		 * NORMALIZED COOKIE FORMAT:
+		 * network | tracking_ref | affiliate_ref | affiliate_ref_old | referrer | cookieTime | acd_sale | clickId | device
+		 *
+		 */
+		var content = network
+		content += '|' + tracking_ref;
+		content += '|' + affiliate;
+		content += '|' + funnel;
+		content += '|' + referrer;
+		content += '|' + clickTime;
+		content += '|' + acd_sale;
+		content += '|' + clickid;
+		content += '|' + device;
+
+
+		var createFirstPartyCookie = true;
+
+		if(executedOnStartup){
+			if(this.isPreviouslyCreatedLocalCookie()){
+				// If the cookie has been created previously we're going to
+				// replace the content var that is having the "new calculated cookie"
+				// instead we're going to add the value of the cookie previously created
+				content = AffUtils.Cookie.get($xd.AffLocalCookieName);
+				createFirstPartyCookie = false;
+			};
+		}
+
+		if(createFirstPartyCookie){
+			AffUtils.Cookie.set(
+				$xd.AffLocalCookieName,
+				content,
+				expires,
+				domain
+			);
+		}
+		if(content){
+			AffUtils.localStorage.set(
+				$xd.AffLocalCookieName,
+				content
+			);
+			AffUtils.Cookie.setPartitioned(content);
+		}
+	};
+
+	/**
+	 * Method that is going to inject on the links the MLC parameter to the external domains
+	 * This method will be attached to the click event
+	 *
+	 * @param event
+	 */
+	$xd.onClick = function (event) {
+		if ($xd.injectParametersEnabled) {
+			//Looking for the clicked Anchor
+			var tarEl = event.target;
+			while (tarEl.nodeName.toUpperCase() != 'A' && tarEl.parentElement) {
+				tarEl = tarEl.parentElement;
+			}
+
+			if (tarEl && tarEl.nodeName.toUpperCase() == 'A') {
+				if (AffUtils.Link.isLink(tarEl.href)) {
+					//Checking if it is a real link (avoiding javascript:, mailto:, tel:, etc)
+					if (AffUtils.Link.isExternalLink(tarEl.href)) {
+						//Is it an external link?
+						if (!AffUtils.Domain.inBlackList(tarEl.href)) {
+                            // refresh propagate params on onClick events
+                            $xd.setMLCPropagateParamUsingCookieData();
+
+                            //Checking if the external domain in black list
+							//Injecting the propagate parameters into the external link
+							var current_link = AffUtils.Link.injectParameters(
+									tarEl.href,
+									window._AffMLC_propagate_param,
+									'_affclk'
+							);
+							tarEl.href = current_link;
+							AffUtils.log(
+									'Click :: Added parameter to link ' + tarEl.href,
+									$xd.debug
+							);
+						}
+					}
+				}
+			}
+		}
+	};
+
+	/**
+	 * Method that is going to inject on the links the MLC parameter to the external domains
+	 * This method will be attached to the form with GET method
+	 *
+	 * @param event
+	 */
+	$xd.onSubmitTypeGET = function (event) {
+		// GET action
+		// validate AffMLC_propagate_param to avoid creating of _affclk input with
+		// null value and adding blank param in url
+		if (window._AffMLC_propagate_param != '') {
+            var inputAffElement = document.getElementsByName('_affclk')[0];
+            if (AffUtils.isNotEmpty(inputAffElement)) {
+                // if _affclk hidden input already exist
+                inputAffElement.value = window._AffMLC_propagate_param.replace('_affclk=', '');
+                AffUtils.log('Submit :: GET :: Updated hidden input', $xd.debug);
+            } else {
+                // create _affclk input and set value
+                var input = document.createElement('input');
+                input.setAttribute('type', 'hidden');
+                input.setAttribute('name', '_affclk');
+                input.setAttribute(
+                        'value',
+                        window._AffMLC_propagate_param.replace('_affclk=', '')
+                );
+                event.srcElement.appendChild(input);
+                AffUtils.log('Submit :: GET :: Added hidden input', $xd.debug);
+            }
+		}
+	};
+
+	/**
+	 * Method that is going to inject on the links the MLC parameter to the external domains
+	 * This method will be attached to the form with POST method
+	 *
+	 * @param event
+	 * @param currentLink
+	 */
+	$xd.onSubmitTypePOST = function (event, currentLink) {
+		event.target.action = currentLink;
+		AffUtils.log(
+				'Submit :: POST :: Added propagation to url ' + event.target.action,
+				$xd.debug
+		);
+
+		/*
+		 * For those JS Apps that are preventing the submit with event.preventDefault();
+		 * we force the Submit now, as we are in the Top of the Event Buble chain.
+		 */
+		if (event.defaultPrevented == true) {
+			AffUtils.log('Submit :: POST :: Forcing Submit', $xd.debug);
+			event.target.submit();
+		}
+	}
+
+	/**
+	 * Event Listener for FORMSs submits (GET & POST)
+	 *
+	 * @param event
+	 */
+	$xd.onSubmit = function (event) {
+		if ($xd.injectParametersEnabled) {
+			if (typeof event.target.action !== 'undefined') {
+				if (event.target.action != '') {
+					if (AffUtils.Link.isLink(event.target.action)) {
+						//Checking if it is a real link (avoiding javascript:, mailto:, tel:, etc)
+						if (AffUtils.Link.isExternalLink(event.target.action)) {
+							// Is it an external link?
+							if (!AffUtils.Domain.inBlackList(event.target.action)) {
+                                // refresh propagate params on onClick events
+                                $xd.setMLCPropagateParamUsingCookieData();
+
+                                // Checking if the external domain in black list
+								//Injecting the propagate parameters into the external link
+								var current_link = AffUtils.Link.injectParameters(event.target.action, window._AffMLC_propagate_param, '_affclk');
+								if (event.target.method.toUpperCase() == 'GET') {
+									$xd.onSubmitTypeGET(event);
+								} else {
+									$xd.onSubmitTypePOST(event, current_link);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	/************************************/
+	$xd.init = function () {
+        var merchantId = $xd.merchantId;
+        
+		if ($xd.useDebugger) {
+			debugger;
+		}
+
+		//To ensure the function is only fired once
+		if (typeof $xd.executed === 'undefined') {
+			$xd.executed = true;
+		} else {
+			return;
+		}
+
+		/*
+		 * We need that each Merchant Local Cookie has its own name, because of some merchants
+		 * can end the booking process in a shared booking engine.
+		 * Ex: merchant1.com has the booking process at bookingeengine.com
+		 * and merchant2.com has the booking process at bookingeengine.com too,
+		 * so we need 2 Merchant Local Cookies at bookingeengine.com to have different values
+		 */
+		$xd.AffLocalCookieName = '_afflrdmlc' + merchantId;
+
+		var network, affiliate, remainingTime, tracking_reference, clickid = null;
+		var referrer = ''
+
+		// no cdt from the begining
+		var acd_sale = '';
+
+		var cookieHistory = '';
+		var cookieExpiresDate = new Date();
+		var clickTime = Math.round(cookieExpiresDate / 1000);
+		var isDocReferrerAffclk = false;
+		var isCookieOneHourOld = false;
+
+		//Default Propagate param
+		window._AffMLC_propagate_param = '';
+
+		/*
+		 * Getting the _affclk parameter from the Location URL or from the Referrer URL
+		 */
+		var affClkReg = new RegExp("[?&]_affclk=([^&#]*)", "i");
+		var affClkString = affClkReg.exec(window.location.href);
+		if (!affClkString) {
+			affClkString = affClkReg.exec(document.referrer);
+			isDocReferrerAffclk = (AffUtils.isNotEmpty(affClkString)) ? true : false;
+		}
+		var affClkValue = affClkString ? affClkString[1] : undefined;
+
+		//Getting the Merchant Local Cookie (used later in any case)
+		var afflrdmlc = $xd.getAffLocalCookie();
+
+		var acd_cookie = '';
+		var device = $xd.getPlatformType();
+
+        var isCookieOneHourOld = (afflrdmlc && isDocReferrerAffclk) ? AffUtils.Cookie.isCookieOneHourOlder(afflrdmlc, 'mlc') : false;
+        var isAffClkValue = (!isDocReferrerAffclk && AffUtils.isNotEmpty(affClkValue)) ? true : false;         // cookie param available in url
+        var isDocRefClkValue = ((isDocReferrerAffclk && (!afflrdmlc || (afflrdmlc && isCookieOneHourOld))) && AffUtils.isNotEmpty(affClkValue)) ? true : false;      // cookie param available in referrer url
+
+        /*
+         * isAffClkValue: Getting the _affclk parameter from the Location URL
+         * isDocRefClkValue: Getting the _affclk parameter from the Referrer URL And If cookie exist should be one hour older
+         */
+        if (isAffClkValue || isDocRefClkValue) {
+			// Fixing any encoded character
+			affClkValue = decodeURIComponent(affClkValue);
+
+			/** Splitting the content from the QueryString parameter*/
+			var affClkValueData = affClkValue.split(':');
+			if (affClkValueData[0] !== undefined) {
+				network = affClkValueData[0];
+			}
+			if (affClkValueData[1] !== undefined) {
+				affiliate = affClkValueData[1];
+			}
+			if (affClkValueData[2] !== undefined) {
+				remainingTime = affClkValueData[2];
+				if (remainingTime == '') {
+					remainingTime = null; //COOKIELIFE;
+                    cookieExpiresDate.setTime(AffUtils.Cookie.getExpiryDateTime($xd.COOKIELIFE));
+				} else {
+                    cookieExpiresDate.setTime(AffUtils.Cookie.getExpiryDateTime(remainingTime));
+                    clickTime = AffUtils.Cookie.getCreatedDateTime($xd.COOKIELIFE, remainingTime);
+				}
+			} else {
+                cookieExpiresDate.setTime(AffUtils.Cookie.getExpiryDateTime($xd.COOKIELIFE));
+			}
+			if (affClkValueData[3] !== undefined) {
+				tracking_reference = affClkValueData[3];
+			}
+			if (affClkValueData[4] !== undefined) {
+				clickid = affClkValueData[4];
+			}
+			if (affClkValueData[5] !== undefined) {
+				referrer = affClkValueData[5];
+			}
+
+
+			/*
+			 * If we have the _affclk parameter we must:
+			 *  1.- Get the Local cookie
+			 *  2.- Create if it doesn't exist *
+			 *  3.- Update the content if already exists (update history + refresh network and affiliate) * ^
+			 *
+			 *  [*] If we have a remainingTime value, the cookie will have limited time, not a fill time life
+			 */
+
+			// If the Merchant Local Cookie exists
+			if (afflrdmlc !== null) {
+				/*
+				 * The Merchant Local Cookie ALREADY EXISTS
+				 *
+				 * Processing the Cookie Funnel / History = network:affiliate:cookietime[;oldHistory] ([0]:[2]:[5][;[3]])
+				 */
+				var afflrdmlcData = afflrdmlc.split('|');
+				//If remainingTime is null means that we are getting a new click
+				/*
+				 * NORMALIZED COOKIE FORMAT:
+				 * network | tracking_ref | affiliate_ref | affiliate_ref_old | referrer | cookieTime | acd_sale | clickId | device
+				 *
+				 */
+				/*
+				 * PROPOSAL OF NORMALIZED FUNNEL FORMAT:
+				 * network : affiliate_ref : interactionTime : affiliate_type : device
+				 *
+				 */
+				if (typeof afflrdmlcData[8] == 'undefined') {
+					afflrdmlcData[8] = 0;
+				}
+				if (remainingTime == null) {
+					cookieHistory = afflrdmlcData[0] + ':' + afflrdmlcData[2] + ':' + afflrdmlcData[5] + '::' + afflrdmlcData[8];
+					if (afflrdmlcData[3] != '') {
+						cookieHistory += (encodeURIComponent(';') + afflrdmlcData[3]);
+					}
+					cookieHistory = cookieHistory.substring(0, 2000); // Limiting the size of the history
+					remainingTime = $xd.COOKIELIFE; // Setting the remaining time to be propagated
+				} else if (remainingTime != null) {
+					//clickTime = afflrdmlcData[5];
+					cookieHistory = afflrdmlcData[3]; //Same history
+
+					//Checking if the network and affiliate have changed too
+					if (network != afflrdmlcData[0] || affiliate != afflrdmlcData[2]) {
+						cookieHistory = afflrdmlcData[0] + ':' + afflrdmlcData[2] + ':' + afflrdmlcData[5] + '::' + afflrdmlcData[8];
+						if (afflrdmlcData[3] != '') {
+							cookieHistory += (encodeURIComponent(';') + afflrdmlcData[3]);
+						}
+					}
+				}
+			}
+
+			/*
+			 * NORMALIZED COOKIE FORMAT:
+			 * network | tracking_ref | affiliate_ref | affiliate_ref_old | referrer | cookieTime | acd_sale | clickId | device
+			 *
+			 */
+
+			/* Create / Update the Merchant Local Cookie [setAffLocalCookie(network, tracking_ref = '', affiliate, funnel = '', referrer = '', cookieTime, expires, domain)] */
+			$xd.setAffLocalCookie(
+					network,
+					tracking_reference,
+					affiliate,
+					cookieHistory,
+					referrer,
+					clickTime,
+					acd_sale,
+					clickid,
+					device,
+					cookieExpiresDate.toUTCString(),
+					AffUtils.Domain.getDomainWithoutSubdomainsFromDomain(document.domain),
+					true
+			);
+
+			// Setting global variable to propagate parameters
+			window._AffMLC_propagate_param = $xd.createPropagateParam(network, affiliate, remainingTime, tracking_reference, clickid, referrer);
+		} else {
+            /*
+             * In case we don't have the '_affclk' parameter in the URL and referrer,
+             * we check if the local cookie '_afflrdmlc' cookie exists. If it exists we get the data from the local cookie
+             * to injectParameters() in the external links
+             */
+            $xd.setMLCPropagateParamUsingCookieData();
+		}
+
+		if (window._AffMLC_propagate_param.length > 0 && $xd.injectParametersEnabled) {
+			/*
+			 * Attaching to events
+			 */
+			AffUtils.Event.eventWrapper(document, 'click', $xd.onClick);
+			AffUtils.Event.eventWrapper(document, 'submit', $xd.onSubmit);
+			AffUtils.Event.wrap(window, 'open', function (orginalFn) {
+				var originalParams = Array.prototype.slice.call(arguments, 1);
+				if (AffUtils.Link.isLink(originalParams[0])) { //Checking if it is a real link (avoiding javascript:, mailto:, tel:, etc)
+					if (AffUtils.Link.isExternalLink(originalParams[0])) { //Is it an external link?
+						if (!AffUtils.Domain.inBlackList(originalParams[0])) { //Checking if the external domain in black list
+                            // refresh propagate params on onClick events
+                            $xd.setMLCPropagateParamUsingCookieData();
+
+                            //Injecting the propagate parameters into the external link
+							var current_link = AffUtils.Link.injectParameters(originalParams[0], window._AffMLC_propagate_param, '_affclk');
+							originalParams[0] = current_link;
+							AffUtils.log(
+									'Click :: Added parameter to window.open ' + originalParams[0],
+									$xd.debug
+							);
+						}
+					}
+				}
+				//Perform some logic
+				//Call the original window.open with the original params
+				orginalFn.apply(undefined, originalParams);
+			});
+		}
+	};
+
+    /**
+     * Re-Calculate Remaining time on events onclick,submit etc.
+     */
+    $xd.setMLCPropagateParamUsingCookieData = function () {
+        /*
+         * In case we don't have the '_affclk' parameter in the URL and referrer,
+         * we check if the local cookie '_afflrdmlc' cookie exists on a.com.
+         * If it exists we get the data from the local cookie to injectParameters() in the external links b.com
+         */
+        var afflrdmlc = $xd.getAffLocalCookie();
+        if (afflrdmlc !== null) {
+            var network, affiliate, remainingTime, tracking_reference, clickid = null;
+            var referrer = ''
+            var acd_sale = '';
+            var cookieHistory = '';
+
+            // Getting data from the cookie
+            var data = afflrdmlc.split('|');
+
+            /*
+             * NORMALIZED COOKIE FORMAT:
+				 * network | tracking_ref | affiliate_ref | affiliate_ref_old | referrer | cookieTime | acd_sale | clickId | device
+             *
+             */
+
+				// Network
+            network = data[0];
+
+				// Tracking Reference
+            tracking_reference = data[1];
+
+				// Affiliate Ref
+            affiliate = data[2];
+
+				// funnel
+            cookieHistory = data[3];
+
+            // referer
+            referrer = data[4];
+            if (referrer !== null) {
+                referrer = referrer.replace(/\./g, '_');    // replace dots with underscores
+            }
+
+            var cookieCreatedTime = data[5];
+            remainingTime = AffUtils.Cookie.getRemainingTime(cookieCreatedTime, $xd.COOKIELIFE);
+
+            acd_sale = data[6];
+
+            if (data[7] !== undefined) {
+                clickid = data[7];
+            }
+
+            // Setting global variable to propagate parameters
+            window._AffMLC_propagate_param = $xd.createPropagateParam(network, affiliate, remainingTime, tracking_reference, clickid, referrer);
+        }
+    }
+})(AffMLC, 30, true, false, false, 5222);
+
+function AffMerchantLocalCookiesInit() {
+    try {
+        if (typeof AffMLC !== 'undefined') {
+            if (document.readyState === "loading") {
+                document.addEventListener('DOMContentLoaded', function () {
+                    AffMLC.init();
+
+                    window.addEventListener("message", function(event) {
+                        if (event.origin !== 'https://customs.affilired.com/' + 'rls.php?merchant=5222') {
+                            return;
+                        }
+                    }, false);
+                    AffUtils.localStorage.createIframe('https://customs.affilired.com/' + 'rls.php?merchant=5222');
+
+                });
+            } else {
+                AffMLC.init();
+            }
+        }
+    } catch (e) {
+        console.log("AffMLC main exception :: " + e.message);
+    }
+}
+
+(function () {
+	AffMerchantLocalCookiesInit();
+})();
+/****************************************************************************************************************
+ * DEDUPLICATION COOKIE
+ ****************************************************************************************************************/
+var AffDedup = AffDedup || {};
+(function (
+        $xd,
+        dedupChannels,
+        cookieName,
+        cookieLife,
+        injectParameters,
+        debugEnabled
+) {
+    $xd.deduplicationParams = dedupChannels;
+    $xd.cookieName = cookieName;
+    $xd.debug = debugEnabled;
+    $xd.cookieLife = cookieLife * 24 * 60 * 60;
+    $xd.injectParametersEnabled = injectParameters;
+    $xd.internalDeduplicationParam = 'gdp';
+
+    /**
+     * Search for a parameter in the URL string matching with the allowed channels
+     *
+     * @param deduplicationParam
+     * @param allowedChannels
+     * @returns {string|null}
+     */
+    $xd.searchURLParam = function (deduplicationParam, allowedChannels) {
+        var searchString = window.location.search.substring(1);
+
+        // If searchString is empty we will check document.referrer
+        if (searchString === '' && AffUtils.isNotEmpty(document.referrer)) {
+            searchString = document.referrer.slice(document.referrer.indexOf('?') + 1);
+        }
+
+        // If there is # in the redirect-url before query string for example domain-bb.local/#/room?gdp=affilired
+        // window.location.search does not return query string
+        // In that case we will search for queryString ? as following:
+        if (searchString === '') {
+            searchString = window.location.href.slice(window.location.href.indexOf('?') + 1);
+        }
+
+        var params = searchString.split('&');
+        var paramslength = params.length;
+        for (var i = 0; i < paramslength; i++) {
+            var val = params[i].split('=');
+            var urlDedupParam = (val && val[0]) ? val[0].toLowerCase() : '';
+            urlDedupParam = (urlDedupParam) ? decodeURIComponent(urlDedupParam) : urlDedupParam;
+            // parameters should not be case-sensitive
+            urlDedupParam = (urlDedupParam) ? urlDedupParam.toLowerCase() : '';
+            deduplicationParam = deduplicationParam ? deduplicationParam.toLowerCase() : '';
+
+            if (urlDedupParam === deduplicationParam) {
+
+                var urlAllowedVal = (val && val[1]) ? val[1].toLowerCase() : '';
+                urlAllowedVal = decodeURIComponent(urlAllowedVal);
+
+                // check if dedup value contains remaining time
+                if (urlAllowedVal && (urlAllowedVal.indexOf(":") !== -1)) {
+                    var valArr = urlAllowedVal.split(':');
+                    urlAllowedVal = (valArr && valArr.length > 0) ? valArr[0] : urlAllowedVal;
+                }
+
+                // If the search string contains a variable which matches globalParam
+                if (allowedChannels && allowedChannels.indexOf(urlAllowedVal) > -1) {
+                    // If the channel is allowed then we'll return the value of this parameter
+                    return urlAllowedVal.toLowerCase();
+                } else if (allowedChannels && allowedChannels.indexOf(urlAllowedVal) === -1) {
+                    // If allowedChannels is set but the param found is not in the whitelist skip
+                } else {
+                    // Then return the value of this parameter.
+                    return urlAllowedVal.toLowerCase();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the source channel from a list of possible channels
+     * @returns {string|null}
+     */
+    $xd.getSourceChannel = function (deduplicationParams) {
+        if (typeof deduplicationParams === 'object' && Object.keys(deduplicationParams).length > -1) {
+            for (var param in deduplicationParams) {
+                var sc = $xd.searchURLParam(param, deduplicationParams[param]);
+                if (sc !== null) {
+                    return sc;
+                }
+            }
+        }
+        return null
+    };
+
+    /**
+     * set a cookie which can be used to determine the last click
+     * cookieName : cookie name or channel name
+     * lastClick: channel allowed value
+     * cookieExpiresDate : cookie expiry date
+     */
+    $xd.createChannelCookie = function (lastClick, cookieDays, cookieName, cookieExpiresDate) {
+        AffUtils.Cookie.set(
+                cookieName,
+                lastClick,
+                cookieExpiresDate.toUTCString(),
+                AffUtils.Domain.getDomainWithoutSubdomainsFromDomain(document.domain)
+        );
+    };
+
+    /**
+     * Returns the value of the last click channel cookie
+     *
+     * @param cookieName
+     * @returns {string|null}
+     */
+    $xd.getChannelCookie = function (cookieName) {
+        return AffUtils.Cookie.get(cookieName);
+    };
+
+    /**
+     * Determines and assings last click.
+     */
+    $xd.getLastClick = function () {
+        return $xd.getSourceChannel($xd.deduplicationParams);
+    };
+
+    $xd.onClick = function (event) {
+        // Get the channel cookie if available
+        if ($xd.injectParametersEnabled) {
+            var gdpValue = $xd.getChannelCookie($xd.cookieName);
+            if (gdpValue) {
+                //Looking for the clicked Anchor
+                var tarEl = event.target;
+                while (tarEl.nodeName.toUpperCase() !== 'A' && tarEl.parentElement) {
+                    tarEl = tarEl.parentElement;
+                }
+
+                if (tarEl && tarEl.nodeName.toUpperCase() === "A") {
+                    if (AffUtils.Link.isLink(tarEl.href)) {
+                        if (AffUtils.Link.isExternalLink(tarEl.href)) { //Is it an external link?
+                            //Checking if it is a real link (avoiding javascript:, mailto:, tel:, etc)
+                            // and checking that outside link goes to reservhotel.com
+                            //Injecting the propagate parameters into the external link
+                            if (!AffUtils.Domain.inBlackList(tarEl.href)) { //Checking if the external domain in black list
+                                // refresh remaining time
+                                $xd.setDedupPropagateParamUsingCookieData();
+
+                                var current_link = AffUtils.Link.injectParameters(
+                                        tarEl.href,
+                                        window.AffDedupPropagateParam,
+                                        $xd.internalDeduplicationParam
+                                );
+                                tarEl.href = current_link;
+                                AffUtils.log(
+                                        'Click :: Added parameter to link ' + current_link,
+                                        $xd.debug
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    $xd.onSubmitTypeGET = function (event) {
+        // GET action
+        // validate AffDedupPropagateParam to avoid creating of dedupparam input
+        // with null value and adding blank param in url
+        if (window.AffDedupPropagateParam !== '') {
+            var inputDedupElement = document.getElementsByName($xd.internalDeduplicationParam)[0];
+            if (AffUtils.isNotEmpty(inputDedupElement)) {
+                // if gdp hidden input already exist
+                inputDedupElement.value = window.AffDedupPropagateParam.replace($xd.internalDeduplicationParam + '=', '');
+                AffUtils.log('Submit :: GET :: Updated hidden input', $xd.debug);
+            } else {
+                // create dedupparam input and set value
+                var input = document.createElement('input');
+                input.setAttribute('type', 'hidden');
+                input.setAttribute('name', $xd.internalDeduplicationParam);
+                input.setAttribute(
+                        'value',
+                        window.AffDedupPropagateParam.replace($xd.internalDeduplicationParam + '=', '')
+                );
+                event.srcElement.appendChild(input);
+                AffUtils.log('Submit :: GET :: Added hidden input', $xd.debug);
+            }
+        }
+    };
+
+    $xd.onSubmitTypePOST = function (event, currentLink) {
+        // POST Action
+        event.target.action = currentLink;
+        AffUtils.log(
+                'Submit :: POST :: Added propagation to url ' + event.target.action,
+                $xd.debug
+        );
+
+        /*
+         * For those JS Apps that are preventing to submit with event.preventDefault();
+         * we force the Submit now, as we are in the Top of the Event Bubble chain.
+         */
+        if (event.defaultPrevented === true) {
+            AffUtils.log('Submit :: POST :: Forcing Submit', $xd.debug);
+            event.target.submit();
+        }
+    }
+
+    /*
+     * Event Listener for FORMSs submits (GET & POST)
+     */
+    $xd.onSubmit = function (event) {
+        if ($xd.injectParametersEnabled) {
+            if (typeof event.target.action !== 'undefined') {
+                if (event.target.action !== '') {
+                    if (AffUtils.Link.isLink(event.target.action)) {
+                        //Checking if it is a real link (avoiding javascript:, mailto:, tel:, etc)
+                        if (AffUtils.Link.isExternalLink(event.target.action)) {
+                            // Is it an external link?
+                            if (!AffUtils.Domain.inBlackList(event.target.action)) {
+                                // refresh remaining time
+                                $xd.setDedupPropagateParamUsingCookieData();
+
+                                // Checking if the external domain in black list
+                                // Injecting the propagate parameters into the external link
+                                var current_link = AffUtils.Link.injectParameters(
+                                        event.target.action,
+                                        window.AffDedupPropagateParam,
+                                        $xd.internalDeduplicationParam);
+                                if (event.target.method.toUpperCase() === 'GET') {
+                                    $xd.onSubmitTypeGET(event);
+                                } else {
+                                    $xd.onSubmitTypePOST(event, current_link);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    $xd.init = function () {
+        if ($xd.useDebugger) {
+            debugger;
+        }
+
+        // To ensure the function is only fired once
+        if (typeof $xd.executed === 'undefined') {
+            $xd.executed = true;
+        } else {
+            return;
+        }
+
+        var gdpValue = $xd.getLastClick();
+        var cookieExpiresDate = new Date();
+        var clickTime = Math.round(cookieExpiresDate / 1000);
+        var dedupClkValue = $xd.getDedupClkValue(gdpValue);
+        var affdedup = $xd.getChannelCookie($xd.cookieName);
+        var lastClick = '';
+        var remainingTime = null;
+        //Default Propagate param
+        window.AffDedupPropagateParam = '';
+
+        var isCookieAnHourOld = false;
+        // We will check document.referrer only if gdpValue from current url is empty
+        var isDocReferrerDedup = (AffUtils.isEmpty(gdpValue) && AffUtils.isNotEmpty(document.referrer)) ? true : false;
+        var dedupClkValueArr = (AffUtils.isNotEmpty(dedupClkValue)) ? $xd.getDedupClkValueData(dedupClkValue) : [];
+        var dedupValueUpdated = false;
+
+        if (AffUtils.isNotEmpty(dedupClkValue)) {
+            // We are here because we are moving from domain a to b and got dedup internal param from the url
+            dedupValueUpdated = true;
+            gdpValue = (AffUtils.isNotEmpty(dedupClkValueArr[0])) ? dedupClkValueArr[0]: dedupClkValue;
+        }
+
+        var isCookieAnHourOld = (affdedup && isDocReferrerDedup) ? AffUtils.Cookie.isCookieOneHourOlder(affdedup, 'dedup') : false;
+        var isDedupClkValue = (AffUtils.isNotEmpty(gdpValue) && !isDocReferrerDedup) ? true : false;
+        var isDedupDocRefClkValue = ((isDocReferrerDedup && (!affdedup || (affdedup && isCookieAnHourOld))) && AffUtils.isNotEmpty(gdpValue)) ? true : false;
+
+        /*** SET DEDUPLICATION COOKIE*/
+        if (isDedupClkValue || isDedupDocRefClkValue || dedupValueUpdated) {
+            // dedupe param is available in url along with dedup value and clickstamp
+            // We will calculate remaining time according to click param
+            if (AffUtils.isArrayNotEmpty(dedupClkValueArr) && AffUtils.isNotEmpty(dedupClkValueArr[1])) {
+                // GDP Cookie Remaining Time
+                remainingTime = dedupClkValueArr[1];
+                    if (remainingTime === '') {
+                        remainingTime = null;       // COOKIELIFE;
+                        cookieExpiresDate.setTime(AffUtils.Cookie.getExpiryDateTime($xd.cookieLife));
+                    } else {
+                        // When we are moving from domain A to B and there is no cookie available pn b.com
+                        // we will calculate cookie created-time (clicks tamp)/expiry time using
+                        // remaining date that we are getting in URL
+                        cookieExpiresDate.setTime(AffUtils.Cookie.getExpiryDateTime(remainingTime));
+                        clickTime = AffUtils.Cookie.getCreatedDateTime($xd.cookieLife, remainingTime);
+                    }
+            } else {
+                // Remaining time not found we are setting default cookie life as expiry date
+                cookieExpiresDate.setTime(AffUtils.Cookie.getExpiryDateTime($xd.cookieLife));
+            }
+
+            /**
+             * If dedup cookie is available and in url dedupe param (without remaining time) is also available,
+             * it means this is a new click, we will set remaining time as cookie life
+             */
+            if (AffUtils.isNotEmpty(affdedup)) {
+                // NORMALIZED COOKIE FORMAT: cookieName | cookieCreatedTime
+                if (remainingTime === null) {
+                    remainingTime = $xd.cookieLife;     // Setting the remaining time to be propagated
+                }
+            }
+
+            // Cookie Name + Cookie Click Timestamp
+            lastClick = gdpValue.toLowerCase() + '|' + clickTime;
+
+            // Create/update dedup cookie
+            $xd.createChannelCookie(
+                    lastClick,
+                    clickTime,
+                    $xd.cookieName,
+                    cookieExpiresDate
+            );
+            $xd.propagateUrlDedupParam(gdpValue, remainingTime);
+        } else {
+            /*
+             * In case we don't have the 'click' parameter in the URL,
+             * We will check if the dedup cookie exists. If it exists we get the data from the dedup cookie
+             * and calculate remaining time to injectParameters() in the external links
+             */
+            if (AffUtils.isNotEmpty(affdedup)) {
+                // NORMALIZED COOKIE FORMAT: cookieName | cookieCreatedTime
+                $xd.setDedupPropagateParamUsingCookieData();
+            }
+        }
+
+        /*** OnClick/OnSubmit/WindowOpen EVENTS   */
+        if (window.AffDedupPropagateParam
+                && window.AffDedupPropagateParam.length > 0
+                && $xd.injectParametersEnabled) {
+            // Add events, on click new window add param to new url
+            // on submit post/get forms or on click of external link we
+            // will pass param to new url so that gdp cookie will create on new link
+            AffUtils.Event.eventWrapper(document, "click", $xd.onClick);
+            AffUtils.Event.eventWrapper(document, "submit", $xd.onSubmit);
+            AffUtils.Event.wrap(window, "open", function (orginalFn) {
+                var originalParams = Array.prototype.slice.call(arguments, 1);
+                //Checking if it is a real link (avoiding javascript:, mailto:, tel:, etc)
+                if (AffUtils.Link.isLink(originalParams[0])) {
+                    // Is it an external link?
+                    if (AffUtils.Link.isExternalLink(originalParams[0])) {
+                        if (!AffUtils.Domain.inBlackList(originalParams[0])) {
+                            // refresh remaining time
+                            $xd.setDedupPropagateParamUsingCookieData();
+
+                            //Injecting the propagate parameters into the external link
+                            var current_link = AffUtils.Link.injectParameters(
+                                    originalParams[0],
+                                    window.AffDedupPropagateParam,
+                                    $xd.internalDeduplicationParam
+                            );
+                            originalParams[0] = current_link;
+                            AffUtils.log(
+                                    'Click :: Added parameter to window.open ' + current_link,
+                                    $xd.debug
+                            );
+                        }
+                    }
+                }
+                //Perform some logic
+                //Call the original window.open with the original params
+                orginalFn.apply(undefined, originalParams);
+            });
+        }
+    };
+
+    /**
+    * Convert string to array of dedup cookie data from url/referrer url if it contains remaining time 
+    * @param dedupClkValue
+    */
+    $xd.getDedupClkValueData = function (dedupClkValue) {
+        var dedupClkValueData = [];
+        if (dedupClkValue !== 'undefined') {
+            dedupClkValue = decodeURIComponent(dedupClkValue);
+            if (dedupClkValue && dedupClkValue.indexOf(":") !== -1) {
+                // dedupe param is available in url or in referrer url
+                // along with dedup cookie value and remaining clickstamp
+                dedupClkValueData = dedupClkValue.split(':');
+            }
+        }
+        return dedupClkValueData;
+    }
+
+    /**
+     * Create dedup cookie value with param name that we will pass to new domain
+     * Dedup redirected URL param format id cookieName = CookieValue:RemainingTime
+     * When user redirect from domain a.com to b.com we will pass the RemainingTime to set the cookie expiry date
+     * @param dedupParam
+     * @param dedupVal
+     * @param remainingTime
+     * @returns {string}
+     */
+    $xd.createPropagateParam = function (dedupParam, dedupVal, remainingTime) {
+        var propagate_param;
+        dedupVal = (dedupVal && dedupVal.trim().length !== 0) ? dedupVal : '';
+
+        if (dedupParam && typeof dedupParam === 'string'
+                && dedupParam.trim().length !== 0) {
+            propagate_param = dedupParam + '=' + dedupVal;
+        } else {
+            propagate_param = 'gdp' + '=' + dedupVal;
+        }
+
+        if (remainingTime) {
+            propagate_param += ':' + remainingTime;
+        }
+        return propagate_param;
+    };
+
+    /**
+     * Getting the _dedupclick parameter from the Location URL or from the Referrer URL when we are moving from domain a to b
+     * @returns {string|undefined}
+     */
+    $xd.getDedupClkValue = function (gdpValue = null) {
+        if ($xd.internalDeduplicationParam && gdpValue === null) {
+            var dedupClkReg = new RegExp("[?&]" + $xd.internalDeduplicationParam + "=([^&#]*)", "i");
+            if (dedupClkReg) {
+                // get internal dedup param value from external domain 
+                var dedupClkString = dedupClkReg.exec(window.location.href);
+                if (!dedupClkString) {
+                    dedupClkString = dedupClkReg.exec(document.referrer);
+                }
+                return dedupClkString ? dedupClkString[1] : undefined;
+            }
+            return undefined;
+        }
+    };
+
+    /**
+     * getDedupCookieData : return dedup cookie data according to type passed
+     * if type = cookieCreatedTime it will retunr cookie created date
+     * if type = gdbValue it will return cookie gdp value
+     *
+     * @param type
+     * @returns {string|null}
+     */
+    $xd.getDedupCookieData = function (type) {
+        var aff_dedup = $xd.getChannelCookie($xd.cookieName);
+        if (aff_dedup) {
+            var cData = aff_dedup.split('|');
+            if (type === 'cookieCreatedTime') {
+                return cData[1];
+            } else if (type === 'gdpValue') {
+                return cData[0];
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Calculate remaining time using cookie created time and cookie life
+     *
+     * @returns {number|*}
+     */
+    $xd.calculateRemainingTime = function () {
+        var cookie_created_time = $xd.getDedupCookieData('cookieCreatedTime');
+        if (cookie_created_time) {
+            var remainingTime = AffUtils.Cookie.getRemainingTime(cookie_created_time, $xd.cookieLife);
+            return remainingTime ? remainingTime : $xd.cookieLife;
+        }
+    }
+
+    /**
+     * propagate url params
+     *
+     * @param gdpValue
+     * @param remainingTime
+     */
+    $xd.propagateUrlDedupParam = function (gdpValue, remainingTime) {
+        window.AffDedupPropagateParam = $xd.createPropagateParam($xd.internalDeduplicationParam, gdpValue, remainingTime);
+    }
+
+    /**
+     * Re-Calculate Remaining time on events onclick,submit etc.
+     */
+    $xd.setDedupPropagateParamUsingCookieData = function () {
+        var gdpValue = $xd.getChannelCookie($xd.cookieName);
+        if (gdpValue !== null) {
+            var gdp_val = $xd.getDedupCookieData('gdpValue');
+            var remaining_time = $xd.calculateRemainingTime();
+            $xd.propagateUrlDedupParam(gdp_val, remaining_time);
+        }
+    }
+})(
+        AffDedup,
+        {"gdp": false, "gclid": false},
+        '5222_gdp',
+        30,
+        false,
+        false
+);
+
+function AffDedupCookieInit() {
+    try {
+        if (typeof AffDedup !== 'undefined') {
+            if (document.readyState === 'loading') {
+                document.onreadystatechange = function () {
+                    if (document.readyState === 'interactive') {
+                        AffDedup.init();
+                    }
+                };
+            } else {
+                AffDedup.init();
+            }
+        }
+    } catch (e) {
+        console.log('AffDedup main exception :: ' + e.message);
+    }
+}
+
+(function () {
+    AffDedupCookieInit();
+})();
+
+
+AffOnChangeState = () => {
+try{	/** reload denomatic resources on history change*/
+	var aff_denomatic = false;
+	AffDenomaticPixel();
+	/** call localcookie function on history change*/
+	delete AffMLC.executed;
+	AffMerchantLocalCookiesInit();
+	/** call dedup function on history change*/
+	delete AffDedup.executed;
+	AffDedupCookieInit();
+} catch (error) {}} 
+/**
+* Common script:
+* This script should be at end of the master tag
+* The following method will call on history state change
+* -On history change we are reloading Denomatic resources
+* -On history change we are reloading MLC/DEDUP/ACD functions inside onChangeState() method
+*/
+window.history.pushState = new Proxy(history.pushState, {
+	apply (target, thisArg, argList) {
+		const [state, title, url] = argList;
+
+		/*
+		* On history change add param to url
+		*/
+		argList = [state, title, url];
+		var output = target.apply(thisArg, argList);
+
+		/*
+		* This function will execute Denomatic resources
+		* and reload acd/dedup/mlc functions on history change
+		*/
+		AffOnChangeState();
+
+		return output;
+	},
+});
+} 
+

@@ -1,0 +1,76 @@
+
+
+var DNdbmID = 'DC-' + '15106670';
+var DNsegment = 'visitor';
+var DNcounter = 'counter';
+var DNStep = 0;
+
+window.denoCsDataLayer = window.denoCsDataLayer || [];
+function denoCustomGtag(){denoCsDataLayer.push(arguments);}
+
+denoCustomGtag('consent', 'default', {
+  'ad_storage': 'granted',
+  'ad_user_data': 'granted',
+  'ad_personalization': 'granted',
+  'analytics_storage': 'granted'
+});
+
+// Crear el script para Google Tag Manager
+var denoGtagScript = document.createElement('script');
+denoGtagScript.async = true;
+denoGtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=' + DNdbmID + '&l=denoCsDataLayer';
+
+// Añadir evento para ejecutar la configuración cuando el script ha cargado
+denoGtagScript.onload = function() {
+    denoCustomGtag('js', new Date());
+    denoCustomGtag('config', DNdbmID);
+
+    setTimeout(function(){
+        denoDisEvent();
+    }, 100);
+};
+
+// Añadir el script de Google Tag Manager al head
+document.head.appendChild(denoGtagScript);
+
+function denoDisEvent(){
+    var DNproductSKU = false;
+    if (typeof DNdbmID != 'undefined' && DNdbmID != null) {
+        if (window.location.href.toLowerCase().indexOf('checkout') != -1) {
+            DNsegment = 'intention';
+        }
+    }
+
+    if (typeof DNdebug != 'undefined' && DNdebug != null) {
+        console.log(DNsegment);
+    } else {
+        var DNActivityType;
+        var DNActivityTypeExtension;
+
+        if (typeof DNdbmID != 'undefined' && DNdbmID != null) {
+            DNActivityType = 'visit0';
+            DNActivityTypeExtension = 'standard';
+            if (DNsegment.indexOf('intention') !== -1) {
+                DNActivityType = 'micro0';
+                DNActivityTypeExtension = 'unique';
+            }
+
+            denoCustomGtag('event', 'deno_prchs_ev', {
+                'allow_custom_scripts': true,
+                'u1': DNsegment,
+                'u27': DNcounter,
+                'send_to': DNdbmID + '/' + DNActivityType + '/' + DNActivityType + '+' + DNActivityTypeExtension
+            })
+        }
+
+        //ADD HOT MICRO
+        if (DNStep == 2) {
+            DNActivityType = 'hot_m0';
+            DNActivityTypeExtension = 'unique';
+            denoCustomGtag('event', 'deno_prchs_ev', {
+                'allow_custom_scripts': true,
+                'send_to': DNdbmID + '/' + DNActivityType + '/' + DNActivityType + '+' + DNActivityTypeExtension
+            })
+        }
+    }
+}

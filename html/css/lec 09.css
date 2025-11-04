@@ -1,0 +1,47 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.containter-fluid{
+    width: 100% !important;
+    margin: auto !important;
+}
+ .container{
+    width: 80% !important;
+    margin: auto !important;
+}
+.m-1{
+    margin: 1rem auto;
+}
+.m-2{
+    margin: 1.5rem auto;
+}
+.m-3{
+    margin: 2rem auto;
+}
+.m-4{
+    margin: 2.5rem auto;
+}
+.m-5{
+    margin: 3rem auto;
+}
+
+.row{
+    width: 100%;
+    margin: auto;
+}
+.col-6{
+    width: 50%;
+    float: left;
+}
+.text-start{
+    text-align: start;
+}
+.text-center{
+    text-align: center;
+}
+.text-center{
+    text-align: end;
+}

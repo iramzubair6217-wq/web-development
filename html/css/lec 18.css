@@ -1,0 +1,189 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.container-fluid{
+    width: 100%;
+    margin: auto;
+}
+.row{
+    display: flex;
+   flex-wrap: wrap;
+}
+.navbar{
+width: 20%;
+height: 100vh;
+ background-color: rgb(43, 43, 109);
+ overflow-y: scroll;
+}
+::-webkit-scrollbar{
+    background-color: transparent;
+    width: 10px;
+}
+.content{
+    width:80%;
+    height: 100vh;
+    background-color: white;
+    overflow-y: scroll  ;
+}
+.menu-bar{
+    display: flex;
+    margin:   30px 50px ;
+}
+.menu-bar a{
+    font-size: 30px;
+    margin-left: 20px;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: white;
+    text-decoration: none;
+}
+.menus{
+    color: white;
+}
+.Menus{
+    display: flex;
+    justify-content: flex-end;
+    margin: 40px;
+
+}
+.Menu-bar{
+    padding: 20px;
+    list-style: none;
+}
+.Menu-bar :hover{
+    fill: blue;
+}
+.section{
+    background-color: rgb(231, 242, 247);
+    
+}
+.headings{
+    display: flex;
+    justify-content: space-between;
+}
+.headings h2{
+    font-size: 50px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: 500;
+    margin: 20px;
+
+}
+.headings h3{
+    font-size: 35px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: 500;
+    margin: 20px;
+    
+}
+.cards{
+    display: flex;
+    justify-content: space-around;
+    margin: 50px auto;
+}
+.card{
+    border: solid none;
+    width: 30rem;
+    height: 15rem;
+    border-radius: 30px;
+    background-color: white;
+}
+.card button{
+    border: solid ;
+    height: 50px;
+    width: 12rem;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    background-color: rgb(222, 242, 250);
+    margin: 20px auto auto 20px;
+}
+.card button a{
+text-decoration: none;
+padding: 5px;
+color: rgb(52, 52, 236);
+}
+.card h2{
+    font-size: 50px;
+    margin: 20px;
+}
+.card p{
+    font-size: 30px;
+    margin: 20px;
+}
+.card span{
+    color: blue;
+}
+.table-section{
+    border: solid white;
+    width: 95rem;
+    background-color: white;
+    margin: 20px 50px ;
+    border-radius: 30px;
+}
+.table-section button{
+    border: solid ;
+    height: 60px;
+    width: 20rem;
+    font-size: 30px;
+    border-radius: 10px;
+    border: none;
+    background-color: rgb(222, 242, 250);
+    margin: 20px auto auto 20px;
+}
+.table-section a{
+    text-decoration: none;
+    color: blue;
+     padding: 10px;
+    
+
+}
+.search button{
+    font-size: 30px;
+    background-color: orange;
+    color: white;
+    border: solid;
+    height: 5rem;
+    width: 10rem;
+}
+.search button a{
+    text-decoration: none;
+    color: white;
+
+}
+.search{
+    display: flex;
+    justify-content: space-between;
+}
+.search label{
+    font-size: 40px;
+margin: 10px;
+    
+}
+.search input{
+    height: 3rem;
+    width: 20rem;
+    border-radius: 10px;
+    border: solid rgb(187, 183, 183) 1px;
+    margin: 10px;
+}
+.table{
+    border: solid white;
+width: 90rem;
+height: 50rem;
+font-size: 30px;
+text-align: center;
+margin: 30px;
+ font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+.table th{
+    font-size: 40px;
+}
+.table  tr:nth-child(odd){
+    background-color: aliceblue;
+}
+.table tr:nth-child(even):hover{
+     background-color: aliceblue;
+}
+
+

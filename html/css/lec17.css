@@ -1,0 +1,192 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.container-fluid{
+    width: 100%;
+    margin: auto;
+}
+.container{
+    width: 90%;
+    margin: auto;
+    border-radius: 30px;
+}
+.row{
+    display: flex;
+    flex-wrap: wrap;
+}
+.navbar{
+    width: 25rem;
+    height: 60rem;
+    padding: 50px;
+    background-color: rgb(52, 52, 114);
+    overflow-y: scroll;
+   scroll-behavior: smooth;
+}
+.navbar h3{
+    font-size: 28px;
+    color:white;
+}
+::-webkit-scrollbar{
+    background: transparent;
+
+}
+.section{
+    overflow: scroll;
+    height: 60rem;
+}
+.icons{
+   padding: 50px;
+   margin-left: 80rem;
+}
+.icons svg{
+    padding: 10px;
+}
+.icons svg:hover{
+    border: solid;
+    width: 4rem;
+    height: 4rem;
+    border: none;
+    background-color: blue;
+    fill:white;
+}
+.content{
+    display: flex;
+    justify-content: space-between;
+    padding: 20px  40px;
+   
+}
+.heading{
+    font-size: 53px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: 500;
+}
+.content h3{
+    font-size: 30px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: 300;
+    margin-left: 40rem;
+}
+.bg-light{
+    background-color: rgb(230, 244, 239);
+}
+.bg-white{
+    background-color: white;
+}
+.card{
+    width: 29rem;
+    height: 15rem;
+    background-color: white;
+    border: solid white;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 40px;
+}
+.card button{
+    color: blue;
+    background-color: rgb(238, 244, 244);
+    border: solid;
+    font-size: 25px;
+    border: none;
+    height: 2rem;
+    width: 10rem;
+    border-radius: 10px;
+    padding: 2px;
+}
+.card h2{
+    font-size: 50px;
+}
+.card span{
+    color: blue;
+}
+.card p{
+    font-size: 30px;
+}
+.btn{
+     color: blue;
+    background-color: rgb(238, 244, 244);
+    border: solid;
+    font-size: 25px;
+    border: none;
+    height: 3rem;
+    width: 15rem;
+    border-radius: 10px;
+    margin: 20px;
+}
+.button{
+    font-size: 30px;
+    border: solid;
+    background-color: orange;
+    color: white;
+    padding: 10px;
+    border: none;
+ border-radius: 15px;
+}
+.part label{
+    font-size: 30px;
+    margin-left: auto;
+    padding: 10px;
+   
+}
+.part input{
+    width: 20rem;
+   border: none;
+    background-color:  rgb(238, 242, 242);
+    border-radius: 20px;
+}
+.table{
+    border: solid gray;
+    text-align: center;
+    width: 85rem;
+    height: 50rem;
+    font-size: 30px;
+    border: none;
+    padding: 50px;
+}
+.table th{
+     background-color:  rgb(242, 245, 248);
+}
+.table tr:nth-child(odd){
+    background-color: rgb(242, 245, 248);
+}
+.table tr:nth-child(even):hover{
+     background-color:  rgb(242, 245, 248);
+}
+.b{
+    border: solid;
+    font-size: 20px;
+    width: 30rem;
+    height: 4rem;
+    padding: 10px;
+    border: none;
+}
+.b button{
+   font-size: 30px;
+   border: none;
+   height: 50px;
+   width: 70px;
+
+}
+.b button:hover{
+    color: white;
+    background-color: blue;
+    border-radius: 30px;
+}
+.prg{
+    font-size: 30px;
+    padding: 10px;
+}
+.hr{
+    border-color:rgb(19, 130, 241);
+    border-width: 2px;
+    margin:0 50px ;
+   
+}
+
+
+
+
+
+
+
